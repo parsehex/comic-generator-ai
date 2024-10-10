@@ -22,6 +22,11 @@ def displayText(string):
 	display.display(display.HTML(htmlstr))
 
 
+def displayAudio(b64):
+	audio = display.Audio(data=base64.b64decode(b64))
+	display.display(audio)
+
+
 def extractSingleJsonString(json: str, key):
 	# json is a string output from llm, it may not be valid json
 	# carefully try to extract the key's value
