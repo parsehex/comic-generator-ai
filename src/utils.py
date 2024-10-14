@@ -9,6 +9,12 @@ def saveB64Image(b64, path):
 	img.save(path)
 
 
+def saveB64Audio(b64, path):
+	audio = base64.b64decode(b64)
+	with open(path, 'wb') as f:
+		f.write(audio)
+
+
 def displayB64Image(b64):
 	img = display.Image(base64.b64decode(b64), retina=True)
 	display.display(img)
