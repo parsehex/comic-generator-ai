@@ -103,4 +103,5 @@ finally:
 	cv2.destroyAllWindows()
 	logging.info("Recording finished")
 
+print_disk_space()
 print("Recording complete. Check the log file for details.")
