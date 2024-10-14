@@ -1,7 +1,16 @@
 import base64
+import os
+from datetime import datetime
 from PIL import Image
 from io import BytesIO
 from IPython import display
+
+
+def create_project_folder():
+	timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+	folder_name = f"project_{timestamp}"
+	os.makedirs(folder_name, exist_ok=True)
+	return folder_name
 
 
 def saveB64Image(b64, path):
