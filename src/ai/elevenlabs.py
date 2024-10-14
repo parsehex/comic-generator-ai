@@ -31,12 +31,16 @@ class elevenlabs:
 		return data
 
 	@classmethod
-	def getSpeechB64(self, text: str, voice_id=DEFAULT_TTS_VOICE) -> str:
+	def getSpeechB64(self,
+	                 text: str,
+	                 voice_id=DEFAULT_TTS_VOICE,
+	                 outformat='mp3_22050_32') -> str:
 		url = f"{self.base_url}/text-to-speech/{voice_id}/stream"
 
 		data = {
 		    "text": text,
 		    "model_id": DEFAULT_TTS_MODEL,
+		    'output_format': outformat,
 		    "voice_settings": {
 		        "stability": 0.5,
 		        "similarity_boost": 0.8,
