@@ -154,3 +154,4 @@ cython_debug/
 project_*
 recordings
 moviepy
+***/.DS_Store
