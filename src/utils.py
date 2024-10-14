@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 from datetime import datetime
 from PIL import Image
@@ -33,7 +34,6 @@ def displayText(string):
 	htmlstr = ''
 	for line in string.split('\n'):
 		htmlstr += f'<p>{line}</p>'
-
 	display.display(display.HTML(htmlstr))
 
 
@@ -42,93 +42,90 @@ def displayAudio(b64):
 	display.display(audio)
 
 
+def chunkTextForTTS(text: str, max_chars=5000):
+	sections = []
+	lines = text.split('\n')
+	section = {'type': 'text', 'content': ''}
+
+	# filter out empty lines
+	lines = [line for line in lines if line.strip()]
+
+	for line in lines:
+		if line.startswith('#'):
+			if section['content']:
+				sections.append(section)
+			section = {'type': 'title', 'content': line.lstrip('#').strip()}
+			sections.append(section)
+			section = {'type': 'text', 'content': ''}
+		else:
+			if len(section['content']) + len(line) + 1 > max_chars:
+				sections.append(section)
+				section = {'type': 'text', 'content': ''}
+			section['content'] += line.strip() + '\n'
+
+	if section['content']:
+		sections.append(section)
+
+	return sections
+
+
 def extractSingleJsonString(json: str, key):
-	# json is a string output from llm, it may not be valid json
-	# carefully try to extract the key's value
-
-	# first, find the key itself, then the next colon
-	# then find the next quote to begin the value
-	# then find the next quote to end the value
-	# return the value
-
-	# find the key
 	key_start = json.find(f'"{key}"')
 	if key_start == -1:
 		print(f'Key "{key}" not found in json')
 		return None
 
-	# find the colon
 	colon = json.find(':', key_start)
 	if colon == -1:
 		print(f'Colon not found after key "{key}"')
 		return None
 
-	# find the first quote
 	first_quote = json.find('"', colon)
 	if first_quote == -1:
 		print(f'First quote not found after colon')
 		return None
 
-	# now, there might not be a closing quote
-	# find the next quote
 	second_quote = json.find('"', first_quote + 1)
 	if second_quote == -1:
-		# what is the last character?
 		last_char = json[-1]
 		is_punctuation = last_char in ['.', '!', '?']
 		if is_punctuation:
-			# end the string here
 			second_quote = len(json) - 1
 		else:
 			print(f'Second quote not found after first quote')
 			return None
 
-	# extract the value
 	value = json[first_quote + 1:second_quote]
 	return value
 
 
-def extractSingleArray(json: str, key: str):
-	# this is different but similar
-	# keep track of values
-	# find the key and colon, then the next opening bracket
-	# add values as strings between commas
-	# stop at the closing bracket
-	# return the values
+def extractSingleArray(json_string: str, key: str):
+	json_string = json_string.strip()
+	if json_string.startswith("```"):
+		json_string = json_string[3:]
+	if json_string.endswith("```"):
+		json_string = json_string[:-3]
 
-	# remove "```" from the beginning and end
-	json = json.strip()
-	if json.startswith("```"):
-		json = json[3:]
-	if json.endswith("```"):
-		json = json[:-3]
-
-	# find the key
-	key_start = json.find(f'"{key}"')
+	key_start = json_string.find(f'"{key}"')
 	if key_start == -1:
 		print(f'Key "{key}" not found in json')
 		return None
 
-	# find the colon
-	colon = json.find(':', key_start)
+	colon = json_string.find(':', key_start)
 	if colon == -1:
 		print(f'Colon not found after key "{key}"')
 		return None
 
-	# find the first bracket
-	first_bracket = json.find('[', colon)
+	first_bracket = json_string.find('[', colon)
 	if first_bracket == -1:
 		print(f'First bracket not found after colon')
 		return None
 
-	# find the last bracket
-	last_bracket = json.find(']', first_bracket)
+	last_bracket = json_string.find(']', first_bracket)
 	if last_bracket == -1:
 		print(f'Last bracket not found after first bracket')
 		return None
 
-	# extract the values
-	arr_str = '[' + json[first_bracket + 1:last_bracket] + ']'
-	import json
+	arr_str = '[' + json_string[first_bracket + 1:last_bracket] + ']'
 	arr = json.loads(arr_str)
 	return arr
