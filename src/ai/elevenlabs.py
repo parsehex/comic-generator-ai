@@ -26,20 +26,21 @@ class elevenlabs:
 		return data['voices']
 
 	@classmethod
-	def getModels(self, ) -> list[dict]:
+	def getModels(self) -> list[dict]:
 		data = self.client.models.get_all()
 		return data
 
 	@classmethod
 	def getSpeechB64(self,
 	                 text: str,
+	                 model_id=DEFAULT_TTS_MODEL,
 	                 voice_id=DEFAULT_TTS_VOICE,
 	                 outformat='mp3_22050_32') -> str:
 		url = f"{self.base_url}/text-to-speech/{voice_id}/stream"
 
 		data = {
 		    "text": text,
-		    "model_id": DEFAULT_TTS_MODEL,
+		    "model_id": model_id,
 		    'output_format': outformat,
 		    "voice_settings": {
 		        "stability": 0.5,
