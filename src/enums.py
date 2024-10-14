@@ -8,6 +8,15 @@ class ElevenLabsTTSModel(Enum):
 	Monolingual_v1 = 'eleven_monolingual_v1'
 
 
+class ElevenLabsTTSVoice(Enum):
+	# not comprehensive of course
+	# using descriptions from https://audio-generation-plugin.com/elevenlabs-premade-voices/
+	#   this is a good resource of elevenlabs' premade voices
+
+	Antoni = 'ErXwobaYiN019PkySvjV'
+	Brian = 'nPczCjzI2devNBz1zQrb'  # deep, middle-aged male voice with an American accent
+
+
 class TogetherAIFluxModel(Enum):
 	Flux1SchnellFree = 'black-forest-labs/FLUX.1-schnell-Free'
 	Flux1SchnellTurbo = 'black-forest-labs/FLUX.1-schnell'
