@@ -155,3 +155,4 @@ project_*
 recordings
 moviepy
 ***/.DS_Store
+input*.txt
