@@ -2,7 +2,7 @@ import os
 import requests
 import base64
 from io import BytesIO
-from elevenlabs import ElevenLabs
+from elevenlabs import ElevenLabs, Model
 from src.config import DEFAULT_TTS_MODEL, DEFAULT_TTS_VOICE
 
 STREAM_CHUNK_SIZE = 1024
@@ -19,24 +19,24 @@ class elevenlabs:
 	}
 
 	@classmethod
-	def getVoices(self, ) -> list[dict]:
-		url = f"{self.base_url}/voices"
-		response = requests.get(url, headers=self.headers)
+	def getVoices(cls, ) -> list[dict]:
+		url = f"{cls.base_url}/voices"
+		response = requests.get(url, headers=cls.headers)
 		data = response.json()
 		return data['voices']
 
 	@classmethod
-	def getModels(self) -> list[dict]:
-		data = self.client.models.get_all()
+	def getModels(cls) -> list[Model]:
+		data = cls.client.models.get_all()
 		return data
 
 	@classmethod
-	def getSpeechB64(self,
+	def getSpeechB64(cls,
 	                 text: str,
 	                 model_id=DEFAULT_TTS_MODEL,
 	                 voice_id=DEFAULT_TTS_VOICE,
 	                 outformat='mp3_22050_32') -> str:
-		url = f"{self.base_url}/text-to-speech/{voice_id}/stream"
+		url = f"{cls.base_url}/text-to-speech/{voice_id}/stream"
 
 		data = {
 		    "text": text,
@@ -50,7 +50,7 @@ class elevenlabs:
 		    }
 		}
 
-		response = requests.post(url, headers=self.headers, json=data, stream=True)
+		response = requests.post(url, headers=cls.headers, json=data, stream=True)
 
 		if response.ok:
 			audio_stream = BytesIO()
@@ -61,4 +61,30 @@ class elevenlabs:
 			return audio_base64
 		else:
 			print(response.text)
-			return None
+			return ''
+
+	@classmethod
+	def getSoundEffectB64(cls,
+	                      prompt: str,
+	                      duration_seconds=None,
+	                      prompt_influence=0.3) -> str:
+		url = f"{cls.base_url}/sound-generation"
+
+		data = {
+		    "text": prompt,
+		    "duration_seconds": duration_seconds,
+		    "prompt_influence": prompt_influence
+		}
+
+		response = requests.post(url, headers=cls.headers, json=data, stream=True)
+
+		if response.ok:
+			audio_stream = BytesIO()
+			for chunk in response.iter_content(chunk_size=STREAM_CHUNK_SIZE):
+				audio_stream.write(chunk)
+			audio_content = audio_stream.getvalue()
+			audio_base64 = base64.b64encode(audio_content).decode('utf-8')
+			return audio_base64
+		else:
+			print(response.text)
+			return ''
