@@ -7,10 +7,25 @@ from io import BytesIO
 from IPython import display
 
 
-def create_project_folder():
-	timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+def create_project_folder(type='d'):
+	if type not in ['d', 'dt']:
+		raise ValueError('type must be "d" or "dt"')
+
+	if type == 'd':
+		timestamp = datetime.now().strftime("%Y%m%d")
+	else:
+		timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 	folder_name = f"project_{timestamp}"
-	os.makedirs(folder_name, exist_ok=True)
+
+	i = 1
+	while True:
+		try:
+			os.makedirs(folder_name + '_0')
+			folder_name += '_0'
+			break
+		except FileExistsError:
+			folder_name = f"project_{timestamp}_{i}"
+			i += 1
 	return folder_name
 
 
@@ -37,12 +52,19 @@ def displayText(string):
 	display.display(display.HTML(htmlstr))
 
 
-def displayAudio(b64):
-	audio = display.Audio(data=base64.b64decode(b64))
-	display.display(audio)
+def displayAudio(b64='', path=''):
+	if b64:
+		audio = display.Audio(data=base64.b64decode(b64))
+		display.display(audio)
+	elif path:
+		audio = display.Audio(path)
+		display.display(audio)
 
 
-def chunkTextForTTS(text: str, max_chars=5000):
+# notes about the format that this function supports:
+# - lines starting with # are considered titles and are separated from the rest of the text
+# - lines starting with [ and ending with ] are considered comments and are removed from the text
+def chunkTextForTTS(text: str, max_chars=5000) -> list[dict]:
 	sections = []
 	lines = text.split('\n')
 	section = {'type': 'text', 'content': ''}
@@ -51,6 +73,12 @@ def chunkTextForTTS(text: str, max_chars=5000):
 	lines = [line for line in lines if line.strip()]
 
 	for line in lines:
+		if '[' in line and ']' in line:
+			comment_start = line.find('[')
+			comment_end = line.find(']')
+			comment = line[comment_start:comment_end + 1]
+			line = line.replace(comment, '')
+
 		if line.startswith('#'):
 			if section['content']:
 				sections.append(section)
