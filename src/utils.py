@@ -7,7 +7,7 @@ from io import BytesIO
 from IPython import display
 
 
-def create_project_folder(type='d'):
+def create_project_folder(type='d', reuse=False):
 	if type not in ['d', 'dt']:
 		raise ValueError('type must be "d" or "dt"')
 
@@ -17,14 +17,25 @@ def create_project_folder(type='d'):
 		timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 	folder_name = f"project_{timestamp}"
 
-	i = 1
+	if reuse:
+		exists = False
+		files = os.listdir()
+		for file in files:
+			if file == folder_name:
+				folder_name = file
+				exists = True
+				break
+		if not exists:
+			os.makedirs(folder_name)
+		return folder_name
+
+	i = 0
 	while True:
+		folder_name = f"project_{timestamp}_{i}"
 		try:
-			os.makedirs(folder_name + '_0')
-			folder_name += '_0'
+			os.makedirs(folder_name)
 			break
 		except FileExistsError:
-			folder_name = f"project_{timestamp}_{i}"
 			i += 1
 	return folder_name
 
