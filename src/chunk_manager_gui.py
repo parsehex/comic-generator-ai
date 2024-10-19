@@ -36,11 +36,13 @@ class ChunkManagerGUI(QWidget):
 		self.next_button = QPushButton('Next')
 		self.play_button = QPushButton('Play Audio')
 		self.regenerate_button = QPushButton('Regenerate Audio')
+		self.quit_button = QPushButton('Quit')  # Added Quit button
 
 		button_layout.addWidget(self.prev_button)
 		button_layout.addWidget(self.next_button)
 		button_layout.addWidget(self.play_button)
 		button_layout.addWidget(self.regenerate_button)
+		button_layout.addWidget(self.quit_button)  # Added Quit button to layout
 
 		layout.addLayout(button_layout)
 
@@ -55,10 +57,17 @@ class ChunkManagerGUI(QWidget):
 		self.next_button.clicked.connect(self.next_chunk)
 		self.play_button.clicked.connect(self.play_audio)
 		self.regenerate_button.clicked.connect(self.regenerate_audio)
+		self.quit_button.clicked.connect(
+		    self.closeWin)  # Connect Quit button to close function
 		self.chunk_list.itemClicked.connect(self.jump_to_chunk)
+		self.text_edit.textChanged.connect(
+		    self.update_chunk_content)  # Connect text edit to update function
 
 		self.load_chunks()
 		self.load_chunk()
+
+	def closeWin(self):
+		self.close()
 
 	def load_chunks(self):
 		self.chunk_list.clear()
@@ -103,6 +112,9 @@ class ChunkManagerGUI(QWidget):
 	def jump_to_chunk(self, item):
 		self.current_chunk = self.chunk_list.row(item)
 		self.load_chunk()
+
+	def update_chunk_content(self):
+		self.chunks[self.current_chunk]['content'] = self.text_edit.toPlainText()
 
 	def closeEvent(self, event):
 		# Save changes to chunks when closing the window
