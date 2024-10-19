@@ -5,6 +5,11 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushB
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 from playsound import playsound
+from src.utils import create_audio
+from src.enums import ElevenLabsTTSModel
+
+# if not specified, will use default model from config/config.yaml
+tts_model = ElevenLabsTTSModel.Turbo_v25.value
 
 
 class ChunkManagerGUI(QWidget):
@@ -36,13 +41,13 @@ class ChunkManagerGUI(QWidget):
 		self.next_button = QPushButton('Next')
 		self.play_button = QPushButton('Play Audio')
 		self.regenerate_button = QPushButton('Regenerate Audio')
-		self.quit_button = QPushButton('Quit')  # Added Quit button
+		self.quit_button = QPushButton('Quit')
 
 		button_layout.addWidget(self.prev_button)
 		button_layout.addWidget(self.next_button)
 		button_layout.addWidget(self.play_button)
 		button_layout.addWidget(self.regenerate_button)
-		button_layout.addWidget(self.quit_button)  # Added Quit button to layout
+		button_layout.addWidget(self.quit_button)
 
 		layout.addLayout(button_layout)
 
@@ -57,11 +62,9 @@ class ChunkManagerGUI(QWidget):
 		self.next_button.clicked.connect(self.next_chunk)
 		self.play_button.clicked.connect(self.play_audio)
 		self.regenerate_button.clicked.connect(self.regenerate_audio)
-		self.quit_button.clicked.connect(
-		    self.closeWin)  # Connect Quit button to close function
+		self.quit_button.clicked.connect(self.closeWin)
 		self.chunk_list.itemClicked.connect(self.jump_to_chunk)
-		self.text_edit.textChanged.connect(
-		    self.update_chunk_content)  # Connect text edit to update function
+		self.text_edit.textChanged.connect(self.update_chunk_content)
 
 		self.load_chunks()
 		self.load_chunk()
@@ -94,6 +97,7 @@ class ChunkManagerGUI(QWidget):
 			self.load_chunk()
 
 	def play_audio(self):
+		# todo need to either play on another thread or use qt-native solution to play audio
 		i = self.current_chunk
 		chunk = self.chunks[i]
 		audio_path = chunk['audio']
@@ -105,9 +109,15 @@ class ChunkManagerGUI(QWidget):
 			self.status_label.setText("Audio file not found")
 
 	def regenerate_audio(self):
-		# Implement the logic to regenerate audio for the current chunk
-		# You'll need to call your create_audio function here
-		pass
+		chunk = self.chunks[self.current_chunk]
+		audio_name = chunk['audio']
+		audio_path = os.path.join(self.project_folder, audio_name)
+		if os.path.exists(audio_path):
+			os.remove(audio_path)
+
+		create_audio(chunk['content'], audio_name, self.project_folder, tts_model)
+
+		self.status_label.setText(f"Audio {audio_name} regenerated successfully")
 
 	def jump_to_chunk(self, item):
 		self.current_chunk = self.chunk_list.row(item)

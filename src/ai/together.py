@@ -6,7 +6,12 @@ from src.enums import TogetherAIFluxModel
 
 class together:
 	baseurl = 'https://api.together.xyz/v1'
-	headers = {'Authorization': f'Bearer {os.getenv("TOGETHER_API_KEY")}'}
+	headers = {'Authorization': ''}
+
+	@classmethod
+	def initialize_client(cls):
+		if not cls.headers['Authorization']:
+			cls.headers['Authorization'] = f'Bearer {os.getenv("TOGETHER_API_KEY")}'
 
 	@classmethod
 	def generateImage(cls,

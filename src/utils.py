@@ -5,6 +5,24 @@ from datetime import datetime
 from PIL import Image
 from io import BytesIO
 from IPython import display
+from src.ai import elevenlabs
+
+
+def create_audio(text,
+                 audio_name='audio.mp3',
+                 project_folder=None,
+                 model=None):
+	# TODO use request stitching to improve gaps
+	# see https://elevenlabs.io/docs/api-reference/how-to-use-request-stitching
+	if project_folder is None:
+		project_folder = create_project_folder()
+
+	audio = elevenlabs.getSpeechB64(text, model)
+	audio_path = os.path.join(project_folder, audio_name)
+	saveB64Audio(audio, audio_path)
+
+	print(f"Audio {audio_name} created successfully in {project_folder}")
+	return project_folder, audio_path
 
 
 def create_project_folder(type='d', reuse=False):

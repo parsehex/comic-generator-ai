@@ -4,22 +4,35 @@ import base64
 from io import BytesIO
 from elevenlabs import ElevenLabs, Model
 from src.config import DEFAULT_TTS_MODEL, DEFAULT_TTS_VOICE
+from typing import Union
 
 STREAM_CHUNK_SIZE = 1024
 
 
 class elevenlabs:
-	client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
+	client: Union[ElevenLabs, None] = None
 	base_url = "https://api.elevenlabs.io/v1"
 
 	headers = {
 	    "Accept": "application/json",
-	    "xi-api-key": os.getenv("ELEVENLABS_API_KEY"),
+	    "xi-api-key": '',
 	    "Content-Type": "application/json"
 	}
 
 	@classmethod
+	def initialize_client(cls):
+		if cls.client is None:
+			api_key = os.getenv("ELEVENLABS_API_KEY")
+			if not api_key:
+				raise ValueError("ELEVENLABS_API_KEY environment variable not set")
+			cls.client = ElevenLabs(api_key=api_key)
+			cls.headers['xi-api-key'] = api_key
+
+	@classmethod
 	def getVoices(cls, ) -> list[dict]:
+		cls.initialize_client()
+		assert cls.client is not None
+
 		url = f"{cls.base_url}/voices"
 		response = requests.get(url, headers=cls.headers)
 		data = response.json()
@@ -27,6 +40,9 @@ class elevenlabs:
 
 	@classmethod
 	def getModels(cls) -> list[Model]:
+		cls.initialize_client()
+		assert cls.client is not None
+
 		data = cls.client.models.get_all()
 		return data
 
@@ -36,6 +52,8 @@ class elevenlabs:
 	                 model_id=DEFAULT_TTS_MODEL,
 	                 voice_id=DEFAULT_TTS_VOICE,
 	                 outformat='mp3_22050_32') -> str:
+		cls.initialize_client()
+
 		url = f"{cls.base_url}/text-to-speech/{voice_id}/stream"
 
 		data = {

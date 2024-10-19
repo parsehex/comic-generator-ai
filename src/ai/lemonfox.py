@@ -1,19 +1,31 @@
 import os
 from openai import OpenAI
+from typing import Union
 
 
 class lemonfox:
-	client = OpenAI(api_key=os.getenv("LEMONFOX_API_KEY"),
-	                base_url="https://api.lemonfox.ai/v1")
+	client: Union[OpenAI, None] = None
 
 	@classmethod
-	def getTranscript(self,
+	def initialize_client(cls):
+		if cls.client is None:
+			api_key = os.getenv("LEMONFOX_API_KEY")
+			if not api_key:
+				raise ValueError("LEMONFOX_API_KEY environment variable not set")
+			cls.client = OpenAI(api_key=api_key,
+			                    base_url="https://api.lemonfox.ai/v1")
+
+	@classmethod
+	def getTranscript(cls,
 	                  audio_path: str,
 	                  prompt='',
 	                  granularity='segment',
 	                  outformat='verbose_json'):
+		cls.initialize_client()
+		assert cls.client is not None
+
 		audio = open(audio_path, 'rb')
-		response = self.client.audio.transcriptions.create(
+		response = cls.client.audio.transcriptions.create(
 		    # `model` is not actually used by lemonfox
 		    model='whisper-1',
 		    file=audio,
