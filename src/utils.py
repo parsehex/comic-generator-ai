@@ -84,19 +84,28 @@ def chunkTextForTTS(text: str, max_chars=5000) -> list[dict]:
 	lines = [line for line in lines if line.strip()]
 
 	for line in lines:
-		if '[' in line and ']' in line:
+		# '--' to start a new chunk
+		if line.startswith('--'):
+			if section['content']:
+				section['content'] = section['content'].strip()
+				sections.append(section)
+			section = {'type': 'text', 'content': ''}
+			continue
+
+		if '[' in line and ']' in line:  # remove comments
 			comment_start = line.find('[')
 			comment_end = line.find(']')
 			comment = line[comment_start:comment_end + 1]
 			line = line.replace(comment, '')
 
-		if line.startswith('#'):
+		if line.startswith('#'):  # new title
 			if section['content']:
+				section['content'] = section['content'].strip()
 				sections.append(section)
 			section = {'type': 'title', 'content': line.lstrip('#').strip()}
 			sections.append(section)
 			section = {'type': 'text', 'content': ''}
-		else:
+		else:  # new chunk
 			if len(section['content']) + len(line) + 1 > max_chars:
 				sections.append(section)
 				section = {'type': 'text', 'content': ''}
