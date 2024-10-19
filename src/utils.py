@@ -11,13 +11,14 @@ from src.ai import elevenlabs
 def create_audio(text,
                  audio_name='audio.mp3',
                  project_folder=None,
-                 model=None):
+                 model=None,
+                 voice=None):
 	# TODO use request stitching to improve gaps
 	# see https://elevenlabs.io/docs/api-reference/how-to-use-request-stitching
 	if project_folder is None:
 		project_folder = create_project_folder()
 
-	audio = elevenlabs.getSpeechB64(text, model)
+	audio = elevenlabs.getSpeechB64(text, model, voice)
 	audio_path = os.path.join(project_folder, audio_name)
 	saveB64Audio(audio, audio_path)
 
