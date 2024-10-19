@@ -20,6 +20,7 @@ class ChunkManagerGUI(QWidget):
 		self.project_folder = project_folder
 		self.current_chunk = 0
 		self.init_ui()
+		print(f"Loaded {len(self.chunks)} chunks")
 
 	def init_ui(self):
 		self.setWindowTitle('Chunk Manager')

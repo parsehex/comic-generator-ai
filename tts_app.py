@@ -1,7 +1,7 @@
 import os
 import json
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QTextEdit
 from PyQt5.QtCore import Qt
 from src.chunk_manager_gui import ChunkManagerGUI
 from src.utils import chunkTextForTTS, create_audio, create_project_folder
@@ -9,6 +9,50 @@ from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+class ScriptEditor(QWidget):
+
+	def __init__(self, script_path=None, on_save_callback=None):
+		super().__init__()
+		self.script_path = script_path
+		self.on_save_callback = on_save_callback
+		self.init_ui()
+
+	def init_ui(self):
+		self.setWindowTitle('Script Editor')
+		self.setGeometry(100, 100, 600, 400)
+
+		layout = QVBoxLayout()
+
+		self.text_edit = QTextEdit()
+		layout.addWidget(self.text_edit)
+
+		button_layout = QHBoxLayout()
+		save_button = QPushButton('Save')
+		save_button.clicked.connect(self.save_script)
+		button_layout.addWidget(save_button)
+
+		layout.addLayout(button_layout)
+
+		self.setLayout(layout)
+
+		if self.script_path and os.path.exists(self.script_path):
+			with open(self.script_path, 'r') as f:
+				self.text_edit.setText(f.read())
+
+	def save_script(self):
+		if not self.script_path:
+			self.script_path, _ = QFileDialog.getSaveFileName(
+			    self, 'Save Script', '', 'Text Files (*.txt)')
+
+		if self.script_path:
+			with open(self.script_path, 'w') as f:
+				f.write(self.text_edit.toPlainText())
+			self.close()
+
+		if self.script_path and self.on_save_callback:
+			self.on_save_callback(self.script_path)
 
 
 class SetupWindow(QWidget):
@@ -19,27 +63,30 @@ class SetupWindow(QWidget):
 
 	def init_ui(self):
 		self.setWindowTitle('TTS Application Setup')
-		self.setGeometry(100, 100, 400, 300)
+		self.setGeometry(100, 100, 400, 350)
 
 		layout = QVBoxLayout()
 
-		# Script selection
-		script_layout = QHBoxLayout()
-		self.script_label = QLabel('Select Script:')
-		self.script_button = QPushButton('Browse')
-		self.script_button.clicked.connect(self.select_script)
-		script_layout.addWidget(self.script_label)
-		script_layout.addWidget(self.script_button)
-		layout.addLayout(script_layout)
-
 		# Project folder selection
 		folder_layout = QHBoxLayout()
-		self.folder_label = QLabel('Select Project Folder:')
+		self.folder_label = QLabel('Use Existing Project Folder?')
 		self.folder_button = QPushButton('Browse')
 		self.folder_button.clicked.connect(self.select_folder)
 		folder_layout.addWidget(self.folder_label)
 		folder_layout.addWidget(self.folder_button)
 		layout.addLayout(folder_layout)
+
+		# Script selection
+		script_layout = QHBoxLayout()
+		self.script_label = QLabel('Select Script:')
+		self.edit_script_button = QPushButton('New / Edit')
+		self.edit_script_button.clicked.connect(self.edit_script)
+		self.script_button = QPushButton('Browse')
+		self.script_button.clicked.connect(self.select_script)
+		script_layout.addWidget(self.script_label)
+		script_layout.addWidget(self.edit_script_button)
+		script_layout.addWidget(self.script_button)
+		layout.addLayout(script_layout)
 
 		# TTS Model selection
 		model_layout = QHBoxLayout()
@@ -61,10 +108,15 @@ class SetupWindow(QWidget):
 		voice_layout.addWidget(self.voice_combo)
 		layout.addLayout(voice_layout)
 
-		# Start button
+		# Buttons
+		button_layout = QHBoxLayout()
 		self.start_button = QPushButton('Start')
 		self.start_button.clicked.connect(self.start_application)
-		layout.addWidget(self.start_button, alignment=Qt.AlignmentFlag.AlignCenter)
+		self.view_chunks_button = QPushButton('View Chunks')
+		self.view_chunks_button.clicked.connect(self.view_chunks)
+		button_layout.addWidget(self.start_button)
+		button_layout.addWidget(self.view_chunks_button)
+		layout.addLayout(button_layout)
 
 		self.setLayout(layout)
 
@@ -78,6 +130,19 @@ class SetupWindow(QWidget):
 		if self.script_path:
 			self.script_label.setText(
 			    f'Script: {os.path.basename(self.script_path)}')
+
+	def update_script_path(self, new_path):
+		self.script_path = new_path
+		self.script_label.setText(f'Script: {os.path.basename(self.script_path)}')
+
+	def edit_script(self):
+		if self.script_path:
+			self.script_editor = ScriptEditor(self.script_path,
+			                                  self.update_script_path)
+		else:
+			self.script_editor = ScriptEditor(
+			    on_save_callback=self.update_script_path)
+		self.script_editor.show()
 
 	def select_folder(self):
 		folder_dialog = QFileDialog()
@@ -102,9 +167,33 @@ class SetupWindow(QWidget):
 		self.app.run()
 		self.close()
 
+	def view_chunks(self):
+		try:
+			if not self.project_folder:
+				self.project_folder = create_project_folder()
+			has_chunks = os.path.exists(
+			    os.path.join(self.project_folder, 'tts-chunks.json'))
+			if not self.script_path and not has_chunks:
+				self.script_label.setText('Please select a script first!')
+				return
 
-# TODO allow creating new script from GUI
-#   opens a new window with text editor
+			if self.script_path:
+				with open(self.script_path, 'r') as f:
+					script_text = f.read()
+				chunks = chunkTextForTTS(script_text)
+			else:
+				with open(os.path.join(self.project_folder, 'tts-chunks.json'),
+				          'r') as f:
+					chunks = json.load(f)
+
+			print("Creating ChunkManagerGUI instance")
+			ex = ChunkManagerGUI(chunks, self.project_folder)
+			print("Showing ChunkManagerGUI")
+			ex.show()
+			ex.raise_()
+			print("ChunkManagerGUI should be visible now")
+		except Exception as e:
+			print(f"An error occurred: {str(e)}")
 
 
 class TTSApplication:
