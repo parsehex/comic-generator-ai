@@ -187,13 +187,15 @@ class SetupWindow(QWidget):
 					chunks = json.load(f)
 
 			print("Creating ChunkManager instance")
-			ex = ChunkManager(chunks, self.project_folder)
+			self.chunk_manager = ChunkManager(chunks, self.project_folder)
 			print("Showing ChunkManager")
-			ex.show()
-			ex.raise_()
+			self.chunk_manager.show()
+			self.chunk_manager.raise_()
 			print("ChunkManager should be visible now")
 		except Exception as e:
 			print(f"An error occurred: {str(e)}")
+			import traceback
+			traceback.print_exc()
 
 
 class TTSApplication:
@@ -236,12 +238,8 @@ class TTSApplication:
 			print(f"Skipped generating {skipped} audio files")
 
 	def run_gui(self):
-		app = QApplication.instance()
-		if app is None:
-			app = QApplication(sys.argv)
-		ex = ChunkManager(self.chunks, self.project_folder)
-		ex.show()
-		sys.exit(app.exec_())
+		self.manager = ChunkManager(self.chunks, self.project_folder)
+		self.manager.show()
 
 	def run(self):
 		self.process_script()
