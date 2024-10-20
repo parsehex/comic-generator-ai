@@ -12,7 +12,7 @@ from src.enums import ElevenLabsTTSModel
 tts_model = ElevenLabsTTSModel.Turbo_v25.value
 
 
-class ChunkManagerGUI(QWidget):
+class ChunkManager(QWidget):
 
 	def __init__(self, chunks, project_folder):
 		super().__init__()

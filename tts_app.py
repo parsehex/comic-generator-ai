@@ -3,7 +3,7 @@ import json
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QTextEdit
 from PyQt5.QtCore import Qt
-from src.chunk_manager_gui import ChunkManagerGUI
+from src.gui.chunk_manager import ChunkManager
 from src.utils import chunkTextForTTS, create_audio, create_project_folder
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
 from dotenv import load_dotenv
@@ -186,12 +186,12 @@ class SetupWindow(QWidget):
 				          'r') as f:
 					chunks = json.load(f)
 
-			print("Creating ChunkManagerGUI instance")
-			ex = ChunkManagerGUI(chunks, self.project_folder)
-			print("Showing ChunkManagerGUI")
+			print("Creating ChunkManager instance")
+			ex = ChunkManager(chunks, self.project_folder)
+			print("Showing ChunkManager")
 			ex.show()
 			ex.raise_()
-			print("ChunkManagerGUI should be visible now")
+			print("ChunkManager should be visible now")
 		except Exception as e:
 			print(f"An error occurred: {str(e)}")
 
@@ -239,7 +239,7 @@ class TTSApplication:
 		app = QApplication.instance()
 		if app is None:
 			app = QApplication(sys.argv)
-		ex = ChunkManagerGUI(self.chunks, self.project_folder)
+		ex = ChunkManager(self.chunks, self.project_folder)
 		ex.show()
 		sys.exit(app.exec_())
 
