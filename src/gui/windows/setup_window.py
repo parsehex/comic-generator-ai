@@ -114,8 +114,8 @@ class SetupWindow(QWidget):
 		tts_model = self.model_combo.currentData()
 		voice_id = self.voice_combo.currentData()
 		self.hide()
-		self.app = TTSApplication(self.script_path, self.project_folder, tts_model,
-		                          voice_id)
+		self.app = TTSChunkApplication(self.script_path, self.project_folder,
+		                               tts_model, voice_id)
 		self.app.run()
 		self.close()
 
@@ -150,7 +150,7 @@ class SetupWindow(QWidget):
 			traceback.print_exc()
 
 
-class TTSApplication:
+class TTSChunkApplication:
 
 	def __init__(self, script_path, project_folder, tts_model, voice_id):
 		self.script_path = script_path
