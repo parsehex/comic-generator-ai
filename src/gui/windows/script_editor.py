@@ -1,5 +1,5 @@
 import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QTextEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QTextEdit, QLabel
 
 
 class ScriptEditor(QWidget):
@@ -15,6 +15,9 @@ class ScriptEditor(QWidget):
 		self.setGeometry(100, 100, 600, 400)
 
 		layout = QVBoxLayout()
+
+		self.title_label = QLabel('Script:')
+		layout.addWidget(self.title_label)
 
 		self.text_edit = QTextEdit()
 		layout.addWidget(self.text_edit)

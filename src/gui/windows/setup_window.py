@@ -18,6 +18,8 @@ class SetupWindow(QWidget):
 		self.setGeometry(100, 100, 400, 350)
 
 		layout = QVBoxLayout()
+		self.title_label = QLabel('Setup Window')
+		layout.addWidget(self.title_label)
 
 		# Project folder selection
 		folder_layout = QHBoxLayout()
