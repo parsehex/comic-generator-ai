@@ -10,6 +10,9 @@ class together:
 
 	@classmethod
 	def initialize_client(cls):
+		if not os.getenv('TOGETHER_API_KEY'):
+			raise Exception('TOGETHER_API_KEY not found in .env file')
+
 		if not cls.headers['Authorization']:
 			cls.headers['Authorization'] = f'Bearer {os.getenv("TOGETHER_API_KEY")}'
 
@@ -20,6 +23,7 @@ class together:
 	                  width=896,
 	                  height=1152,
 	                  model=DEFAULT_IMAGE_MODEL):
+		cls.initialize_client()
 		response = requests.post(f'{cls.baseurl}/images/generations',
 		                         json={
 		                             'prompt': prompt,
@@ -31,4 +35,5 @@ class together:
 		                             'response_format': 'b64_json'
 		                         },
 		                         headers=cls.headers)
-		return response.json()['data'][0]['b64_json']
+		data = response.json()
+		return data['data'][0]['b64_json']
