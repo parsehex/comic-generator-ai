@@ -158,3 +158,5 @@ moviepy
 input*.txt
 *.mp3
 *.wav
+input/
+output/

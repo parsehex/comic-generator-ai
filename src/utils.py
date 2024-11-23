@@ -8,6 +8,16 @@ from IPython import display
 from src.ai import elevenlabs
 
 
+def ensuredir(path):
+	# is file? get dirname
+	base = os.path.basename(path)
+	if '.' in base:
+		path = os.path.dirname(path)
+
+	if not os.path.exists(path):
+		os.makedirs(path)
+
+
 def create_audio(text,
                  audio_name='audio.mp3',
                  project_folder=None,
@@ -60,11 +70,13 @@ def create_project_folder(type='d', reuse=False):
 
 
 def saveB64Image(b64, path):
+	ensuredir(path)
 	img = Image.open(BytesIO(base64.b64decode(b64)))
 	img.save(path)
 
 
 def saveB64Audio(b64, path):
+	ensuredir(path)
 	audio = base64.b64decode(b64)
 	with open(path, 'wb') as f:
 		f.write(audio)

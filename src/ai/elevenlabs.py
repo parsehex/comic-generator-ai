@@ -86,6 +86,7 @@ class elevenlabs:
 	                      prompt: str,
 	                      duration_seconds=None,
 	                      prompt_influence=0.3) -> str:
+		cls.initialize_client()
 		url = f"{cls.base_url}/sound-generation"
 
 		data = {
