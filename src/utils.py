@@ -6,6 +6,7 @@ from PIL import Image
 from io import BytesIO
 from IPython import display
 from src.ai import elevenlabs
+from newspaper import Article
 
 
 def ensuredir(path):
@@ -208,3 +209,29 @@ def extractSingleArray(json_string: str, key: str):
 	arr_str = '[' + json_string[first_bracket + 1:last_bracket] + ']'
 	arr = json.loads(arr_str)
 	return arr
+
+
+def chunk_text(text, max_length=5000):
+	chunks = []
+	while len(text) > max_length:
+		# Find the nearest ending punctuation before the max_length
+		end = text.rfind('.', 0, max_length)
+		if end == -1:
+			end = text.rfind('!', 0, max_length)
+		if end == -1:
+			end = text.rfind('?', 0, max_length)
+		if end == -1:
+			end = text.rfind('\n', 0, max_length)
+		if end == -1:
+			end = max_length  # If no punctuation is found, chunk at max_length
+		chunks.append(text[:end + 1])
+		text = text[end + 1:].strip()
+	chunks.append(text)
+	return chunks
+
+
+def get_text_from_url(url):
+	article = Article(url)
+	article.download()
+	article.parse()
+	return article.text

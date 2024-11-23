@@ -1,16 +1,24 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QComboBox, QLabel, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QComboBox, QLabel, QFileDialog, QSpinBox, QLineEdit
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 from src.ai import elevenlabs
-from src.utils import saveB64Audio
+from src.utils import saveB64Audio, chunk_text, get_text_from_url
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
 import tempfile
 import base64
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# TODOS
+# - Add character count
+# - Press enter on url input to load
+# - Disable Play/Save buttons if no audio generated
+# - Make clear you have to provide 1 input
+# - Update UI to show progress (currently blocking)
+#   - A simple status bar at the bottom should suffice
 
 
 class TTSApp(QWidget):
@@ -28,11 +36,38 @@ class TTSApp(QWidget):
 		layout.addWidget(QLabel("Input Text:"))
 		layout.addWidget(self.text_input)
 
+		# File input
+		file_layout = QHBoxLayout()
+		self.file_input = QLineEdit()
+		self.file_input.setPlaceholderText("Select a text file...")
+		self.file_button = QPushButton("Browse")
+		self.file_button.clicked.connect(self.load_file)
+		file_layout.addWidget(self.file_input)
+		file_layout.addWidget(self.file_button)
+		layout.addLayout(file_layout)
+
+		# URL input
+		url_layout = QHBoxLayout()
+		self.url_input = QLineEdit()
+		self.url_input.setPlaceholderText("Enter URL...")
+		self.url_button = QPushButton("Load URL")
+		self.url_button.clicked.connect(self.load_url)
+		url_layout.addWidget(self.url_input)
+		url_layout.addWidget(self.url_button)
+		layout.addLayout(url_layout)
+
 		# Voice selection
 		self.voice_combo = QComboBox()
 		self.voice_combo.addItems([voice.name for voice in ElevenLabsTTSVoice])
 		layout.addWidget(QLabel("Select Voice:"))
 		layout.addWidget(self.voice_combo)
+
+		# Max chunk length
+		self.chunk_length_spinbox = QSpinBox()
+		self.chunk_length_spinbox.setRange(1, 5000)
+		self.chunk_length_spinbox.setValue(5000)
+		layout.addWidget(QLabel("Max Chunk Length:"))
+		layout.addWidget(self.chunk_length_spinbox)
 
 		# Buttons
 		button_layout = QHBoxLayout()
@@ -51,6 +86,19 @@ class TTSApp(QWidget):
 		self.setWindowTitle('TTS Generator')
 		self.show()
 
+	def load_file(self):
+		file_name, _ = QFileDialog.getOpenFileName(self, "Open Text File", "",
+		                                           "Text Files (*.txt)")
+		if file_name:
+			with open(file_name, 'r') as file:
+				self.text_input.setPlainText(file.read())
+
+	def load_url(self):
+		url = self.url_input.text()
+		if url:
+			text = get_text_from_url(url)
+			self.text_input.setPlainText(text)
+
 	def generate_tts(self):
 		input_text = self.text_input.toPlainText()
 		if not input_text:
@@ -58,42 +106,53 @@ class TTSApp(QWidget):
 			return
 
 		char_count = len(input_text)
-		if char_count > 5000:
-			print(
-			    f'Input text is too long ({char_count} characters), max is 5000 characters'
-			)
-			return
-
 		tts_model = ElevenLabsTTSModel.Multilingual_v2.value
 		tts_voice = ElevenLabsTTSVoice[self.voice_combo.currentText()].value
+		max_chunk_length = self.chunk_length_spinbox.value()
 
-		self.audio = elevenlabs.getSpeechB64(input_text, tts_model, tts_voice)
-		print("TTS generated successfully.")
+		if char_count > max_chunk_length:
+			chunks = chunk_text(input_text, max_chunk_length)
+			print(
+			    f'Text is too long ({char_count} characters), splitting into {len(chunks)} parts'
+			)
+			self.audio_chunks = [
+			    elevenlabs.getSpeechB64(chunk, tts_model, tts_voice)
+			    for chunk in chunks
+			]
+			print("TTS generated successfully for all chunks.")
+		else:
+			self.audio_chunks = [
+			    elevenlabs.getSpeechB64(input_text, tts_model, tts_voice)
+			]
+			print("TTS generated successfully.")
 
 	def play_audio(self):
-		if not hasattr(self, 'audio'):
+		if not hasattr(self, 'audio_chunks'):
 			print("Please generate TTS first.")
 			return
 
 		# Create a temporary file to store the audio
 		with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
 			temp_filename = temp_file.name
-			temp_file.write(base64.b64decode(self.audio))
+			for audio in self.audio_chunks:
+				temp_file.write(base64.b64decode(audio))
 
 		# Play the audio
 		self.player.setMedia(QMediaContent(QUrl.fromLocalFile(temp_filename)))
 		self.player.play()
 
 	def save_audio(self):
-		if not hasattr(self, 'audio'):
+		if not hasattr(self, 'audio_chunks'):
 			print("Please generate TTS first.")
 			return
 
 		file_name, _ = QFileDialog.getSaveFileName(self, "Save Audio File", "",
 		                                           "MP3 Files (*.mp3)")
 		if file_name:
-			saveB64Audio(self.audio, file_name)
-			print(f'Audio saved to {file_name}')
+			for i, audio in enumerate(self.audio_chunks):
+				chunk_output_file = f"{os.path.splitext(file_name)[0]}_part{i+1}{os.path.splitext(file_name)[1]}"
+				saveB64Audio(audio, f'output/tts/{chunk_output_file}')
+				print(f'Audio saved to {chunk_output_file}')
 
 
 if __name__ == '__main__':
