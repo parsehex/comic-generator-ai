@@ -50,6 +50,8 @@ class TTSApp(QWidget):
 		url_layout = QHBoxLayout()
 		self.url_input = QLineEdit()
 		self.url_input.setPlaceholderText("Enter URL...")
+		# TODO idea: button to open a window to pick different extraction options
+		# e.g. using newspaper3k or LLM, remove urls, etc.
 		self.url_button = QPushButton("Load URL")
 		self.url_button.clicked.connect(self.load_url)
 		url_layout.addWidget(self.url_input)
@@ -146,12 +148,13 @@ class TTSApp(QWidget):
 			print("Please generate TTS first.")
 			return
 
-		file_name, _ = QFileDialog.getSaveFileName(self, "Save Audio File", "",
+		file_name, _ = QFileDialog.getSaveFileName(self, "Save Audio File",
+		                                           "output/tts",
 		                                           "MP3 Files (*.mp3)")
 		if file_name:
 			for i, audio in enumerate(self.audio_chunks):
 				chunk_output_file = f"{os.path.splitext(file_name)[0]}_part{i+1}{os.path.splitext(file_name)[1]}"
-				saveB64Audio(audio, f'output/tts/{chunk_output_file}')
+				saveB64Audio(audio, chunk_output_file)
 				print(f'Audio saved to {chunk_output_file}')
 
 
