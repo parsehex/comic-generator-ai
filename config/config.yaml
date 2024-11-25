@@ -1,5 +1,7 @@
 ai:
   default_chat_model: 'meta-llama/llama-3.1-70b-instruct:free'
+  default_ollama_chat_model: 'llama3.1:8b-instruct-q6_K'
+  default_ollama_vision_model: 'llava:latest'
   default_image_model: 'black-forest-labs/FLUX.1-schnell-Free'
   default_tts_model: 'eleven_turbo_v2_5'
   default_tts_voice: 'nPczCjzI2devNBz1zQrb'
