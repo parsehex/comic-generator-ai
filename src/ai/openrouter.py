@@ -19,6 +19,7 @@ class openrouter:
 	@classmethod
 	def chatCompletion(cls,
 	                   prompt: str,
+	                   user_input='',
 	                   temperature=0.15,
 	                   max_tokens=512,
 	                   json=False,
@@ -26,25 +27,25 @@ class openrouter:
 		cls.initialize_client()
 		assert cls.client is not None
 
+		messages = []
+		messages.append({'role': 'system', 'content': prompt})
+		if user_input:
+			messages.append({'role': 'user', 'content': user_input})
+
 		if json is False:
 			response = cls.client.chat.completions.create(model=model,
 			                                              max_tokens=max_tokens,
 			                                              temperature=temperature,
-			                                              messages=[{
-			                                                  'role': 'system',
-			                                                  'content': prompt
-			                                              }])
+			                                              messages=messages)
 		else:
 			response = cls.client.chat.completions.create(model=model,
 			                                              max_tokens=max_tokens,
 			                                              temperature=temperature,
-			                                              messages=[{
-			                                                  'role': 'system',
-			                                                  'content': prompt
-			                                              }],
+			                                              messages=messages,
 			                                              response_format={
 			                                                  'type': 'json_object',
 			                                              })
 		if response.choices[0].finish_reason == 'length':
 			print('Warning: LLM output was cut off')
-		return response.choices[0].message.content
+		return response.choices[0].message.content if response.choices[
+		    0].message.content is not None else ""
