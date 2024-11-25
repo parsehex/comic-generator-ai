@@ -160,3 +160,4 @@ input*.txt
 *.wav
 input/
 output/
+cache.json

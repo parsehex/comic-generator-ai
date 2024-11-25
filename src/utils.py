@@ -230,8 +230,28 @@ def chunk_text(text, max_length=5000):
 	return chunks
 
 
-def get_text_from_url(url):
+def get_text_from_url(url, cache_file='cache.json'):
+	# Check if the cache file exists
+	if os.path.exists(cache_file):
+		with open(cache_file, 'r') as f:
+			cache = json.load(f)
+	else:
+		cache = {}
+
+	# Check if the URL is in the cache
+	if url in cache:
+		print(f"Using cached result for {url}")
+		return cache[url]
+
+	# If not, download and parse the article
 	article = Article(url)
 	article.download()
 	article.parse()
-	return article.text
+	text = article.text
+
+	# Save the result to the cache
+	cache[url] = text
+	with open(cache_file, 'w') as f:
+		json.dump(cache, f)
+
+	return text
