@@ -1,4 +1,4 @@
-from src.ai import openrouter
+from src.clients import openrouter
 
 prompt_instructions = """Text to Speech (Speech Synthesis)
 Prompting

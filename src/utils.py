@@ -5,7 +5,7 @@ from datetime import datetime
 from PIL import Image
 from io import BytesIO
 from IPython import display
-from src.ai import elevenlabs
+from src.clients import elevenlabs
 from newspaper import Article
 
 

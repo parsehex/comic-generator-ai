@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QComboBox, QLabel, QFileDialog, QSpinBox, QLineEdit
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
-from src.ai import elevenlabs
+from src.clients import elevenlabs
 from src.utils import saveB64Audio, chunk_text, get_text_from_url
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
 import tempfile
