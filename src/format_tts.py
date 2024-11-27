@@ -106,4 +106,7 @@ Assistant's task is to format and correct the <input-text>, using the <prompt-in
 def format_tts_text(text: str) -> str:
 	input_text = f'<input-text>\n{text}\n</input-text>'
 	res = openrouter.chatCompletion(prompt, input_text, max_tokens=2048)
+	# does rs have <output> tags? extract the text between them
+	res = res[res.find('<output>') +
+	          len('<output>'):res.find('</output>')].strip()
 	return res
