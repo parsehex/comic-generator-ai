@@ -33,6 +33,8 @@ class lemonfox:
 		    timestamp_granularities=[granularity],
 		    response_format=outformat,
 		    language='en')
+		if outformat == 'verbose_json' or outformat == 'json':
+			return str(response.model_dump_json())
 
 		return response
 
