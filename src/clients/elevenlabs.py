@@ -1,6 +1,7 @@
 import os
 import requests
 import base64
+import typing
 from io import BytesIO
 from elevenlabs import ElevenLabs, Model
 from src.config import DEFAULT_TTS_MODEL, DEFAULT_TTS_VOICE
@@ -51,6 +52,8 @@ class elevenlabs:
 	                 text: str,
 	                 model_id=DEFAULT_TTS_MODEL,
 	                 voice_id=DEFAULT_TTS_VOICE,
+	                 previous_text: Union[str, None] = None,
+	                 next_text: Union[str, None] = None,
 	                 outformat='mp3_22050_32') -> str:
 		cls.initialize_client()
 
@@ -60,6 +63,8 @@ class elevenlabs:
 		    "text": text,
 		    "model_id": model_id,
 		    'output_format': outformat,
+		    "previous_text": previous_text,
+		    "next_text": next_text,
 		    "voice_settings": {
 		        "stability": 0.5,
 		        "similarity_boost": 0.8,
