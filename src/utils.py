@@ -15,7 +15,10 @@ def ensuredir(path):
 	if '.' in base:
 		path = os.path.dirname(path)
 
-	if not os.path.exists(path):
+	# if not os.path.exists(path):
+	# if not file and directory does not exist
+	is_file = '.' in os.path.basename(path)
+	if path and not os.path.exists(path) and not is_file:
 		os.makedirs(path)
 
 
@@ -74,6 +77,7 @@ def saveB64Image(b64, path):
 	ensuredir(path)
 	img = Image.open(BytesIO(base64.b64decode(b64)))
 	img.save(path)
+	return path
 
 
 def saveB64Audio(b64, path):
@@ -81,6 +85,7 @@ def saveB64Audio(b64, path):
 	audio = base64.b64decode(b64)
 	with open(path, 'wb') as f:
 		f.write(audio)
+	return path
 
 
 def displayB64Image(b64):
@@ -102,6 +107,15 @@ def displayAudio(b64='', path=''):
 	elif path:
 		audio = display.Audio(path)
 		display.display(audio)
+
+
+def displayVideo(b64='', path=''):
+	if b64:
+		video = display.Video(data=base64.b64decode(b64))
+		display.display(video)
+	elif path:
+		video = display.Video(path)
+		display.display(video)
 
 
 # notes about the format that this function supports:
