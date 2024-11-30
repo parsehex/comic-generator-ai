@@ -156,6 +156,8 @@ recordings
 moviepy
 ***/.DS_Store
 input*.txt
+*.webm
+*.mp4
 *.mp3
 *.wav
 input/
