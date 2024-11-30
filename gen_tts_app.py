@@ -1,24 +1,17 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QComboBox, QLabel, QFileDialog, QSpinBox, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QComboBox, QLabel, QFileDialog, QSpinBox, QLineEdit, QCheckBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 from src.clients import elevenlabs
 from src.utils import saveB64Audio, chunk_text, get_text_from_url
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
+from src.format_tts import format_tts_text
 import tempfile
 import base64
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# TODOS
-# - Add character count
-# - Press enter on url input to load
-# - Disable Play/Save buttons if no audio generated
-# - Make clear you have to provide 1 input
-# - Update UI to show progress (currently blocking)
-#   - A simple status bar at the bottom should suffice
 
 
 class TTSApp(QWidget):
@@ -31,10 +24,8 @@ class TTSApp(QWidget):
 	def initUI(self):
 		layout = QVBoxLayout()
 
-		# Text input
-		self.text_input = QTextEdit()
-		layout.addWidget(QLabel("Input Text:"))
-		layout.addWidget(self.text_input)
+		# explanatory line: "Enter text or load from file/URL"
+		layout.addWidget(QLabel("Enter text or load from file/URL:"))
 
 		# File input
 		file_layout = QHBoxLayout()
@@ -50,13 +41,20 @@ class TTSApp(QWidget):
 		url_layout = QHBoxLayout()
 		self.url_input = QLineEdit()
 		self.url_input.setPlaceholderText("Enter URL...")
-		# TODO idea: button to open a window to pick different extraction options
-		# e.g. using newspaper3k or LLM, remove urls, etc.
 		self.url_button = QPushButton("Load URL")
 		self.url_button.clicked.connect(self.load_url)
 		url_layout.addWidget(self.url_input)
 		url_layout.addWidget(self.url_button)
 		layout.addLayout(url_layout)
+
+		# Checkbox to reformat URL-extracted text
+		self.reformat_checkbox = QCheckBox("Reformat URL-extracted text")
+		layout.addWidget(self.reformat_checkbox)
+
+		# Text input
+		self.text_input = QTextEdit()
+		layout.addWidget(QLabel("Input Text:"))
+		layout.addWidget(self.text_input)
 
 		# Voice selection
 		self.voice_combo = QComboBox()
@@ -99,6 +97,8 @@ class TTSApp(QWidget):
 		url = self.url_input.text()
 		if url:
 			text = get_text_from_url(url)
+			if self.reformat_checkbox.isChecked():
+				text = format_tts_text(text)
 			self.text_input.setPlainText(text)
 
 	def generate_tts(self):
