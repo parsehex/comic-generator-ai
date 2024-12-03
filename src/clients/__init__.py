@@ -1,3 +1,4 @@
+from .alltalk import alltalk
 from .elevenlabs import elevenlabs
 from .lemonfox import lemonfox
 from .ollama import ollama

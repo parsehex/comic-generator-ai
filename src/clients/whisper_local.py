@@ -23,6 +23,13 @@ class whisper_local:
 		result = whisper.transcribe_timestamped(cls.model,
 		                                        audio,
 		                                        language="en",
-		                                        initial_prompt=prompt)
+		                                        initial_prompt=prompt,
+		                                        beam_size=5,
+		                                        best_of=5,
+		                                        temperature=(0.0, 0.2, 0.4, 0.6,
+		                                                     0.8, 1.0),
+		                                        vad=True,
+		                                        detect_disfluencies=True,
+		                                        remove_empty_words=True)
 
 		return result

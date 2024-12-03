@@ -8,7 +8,7 @@ import pandas as pd
 import os
 from src.utils import ensuredir
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
-from src.format_tts import format_tts_text
+from src.tools.format_tts import format_tts_text
 from src.tools.tts import make_tts
 from src.tools.stt import create_transcript
 from src.video.moviepy import create_video_with_subtitles

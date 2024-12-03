@@ -6,7 +6,7 @@ from PyQt5.QtCore import QUrl
 from src.clients import elevenlabs
 from src.utils import saveB64Audio, chunk_text, get_text_from_url
 from src.enums import ElevenLabsTTSModel, ElevenLabsTTSVoice
-from src.format_tts import format_tts_text
+from src.tools.format_tts import format_tts_text
 import tempfile
 import base64
 from dotenv import load_dotenv
