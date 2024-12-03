@@ -11,7 +11,7 @@ def create_transcript(media_path: str, type='srt', provider='whisper_local'):
 	if media_path.lower().endswith(('.mp4', '.mov', '.avi', '.mkv')):
 		audio_path = os.path.join('output', 'audio', 'audio.wav')
 		ensuredir(audio_path)
-		ffmpeg.input(media_path).output(audio_path).run()
+		ffmpeg.input(media_path).output(audio_path).run(overwrite_output=True)
 	else:
 		audio_path = media_path
 
@@ -32,7 +32,6 @@ def create_transcript(media_path: str, type='srt', provider='whisper_local'):
 def convert_timestamps_to_srt(timestamps: list):
 	srt = ''
 	for i, ts in enumerate(timestamps):
-		print(ts)
 		srt += f'{i + 1}\n'
 		srt += f'{ts["start"]} --> {ts["end"]}\n'
 		srt += f'{ts["text"]}\n\n'
@@ -45,7 +44,9 @@ def create_transcript_local(audio_path: str, srt=False):
 
 	project_folder = 'output/transcripts'
 
-	transcript_json = whisper_local.getTranscript(audio_path)
+	transcript_json = whisper_local.getTranscript(
+	    audio_path,
+	    "Transcribe the following audio into text, with 1 sentence per line.")
 	transcript_json = json.dumps(transcript_json, indent=4)
 
 	transcript_srt_path = os.path.join(
