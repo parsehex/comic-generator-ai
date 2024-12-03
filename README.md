@@ -23,6 +23,21 @@ I've started taking notebooks and turning them into scripts for easier use (most
 - `save_rtsp_stream.py` - a script to save an RTSP stream to a file
   - A project I want to try is to use a vision model to make a system for controlling/recording security camera feeds.
 
+# Setup
+
+If using Mac, install deps using `requirements_mac.txt`:
+
+```bash
+pip install -r requirements_mac.txt
+```
+
+If using Windows, you'll need to use WSL.
+
+You'll need to install:
+- `ffmpeg`
+- `imagemagick`
+  - [Install from source (GH Gist)](https://gist.github.com/cuuupid/963db645047597723956af13ab87b73a)
+
 # License
 
 Copyright 2024 Thomas Mays

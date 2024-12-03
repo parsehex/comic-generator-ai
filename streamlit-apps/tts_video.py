@@ -123,7 +123,9 @@ def main():
 						elif input_type == 'url':
 							input_filename = input_src.split('/')[-1].split('?')[0]
 						else:
-							input_filename = '_'.join(input_src.split(' ')[:5])
+							f = input_src.split(' ')[:5]
+							f = ["".join(e for e in s if e.isalnum()) for s in f]
+							input_filename = '_'.join(f)
 
 						if is_video_input:
 							# Process video input
