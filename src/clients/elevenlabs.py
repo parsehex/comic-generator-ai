@@ -83,7 +83,7 @@ class elevenlabs:
 			audio_base64 = base64.b64encode(audio_content).decode('utf-8')
 			return audio_base64
 		else:
-			print(response.text)
+			print('bad response: ' + response.text)
 			return ''
 
 	@classmethod
@@ -110,5 +110,5 @@ class elevenlabs:
 			audio_base64 = base64.b64encode(audio_content).decode('utf-8')
 			return audio_base64
 		else:
-			print(response.text)
+			print('bad response: ' + response.text)
 			return ''

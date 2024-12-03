@@ -15,6 +15,7 @@ certifi==2024.8.30
 cffi==1.17.1
 charset-normalizer==3.4.0
 click==8.1.7
+coloredlogs==15.0.1
 comm==0.2.2
 cssselect==1.2.0
 Cython==3.0.11
@@ -32,6 +33,7 @@ feedfinder2==0.0.4
 feedparser==6.0.11
 ffmpeg-python==0.2.0
 filelock==3.16.1
+flatbuffers==24.3.25
 frozendict==2.4.6
 frozenlist==1.4.1
 fsspec==2024.9.0
@@ -42,6 +44,7 @@ h11==0.14.0
 httpcore==1.0.6
 httpx==0.27.2
 huggingface-hub==0.26.0
+humanfriendly==10.0
 idna==3.10
 imageio==2.35.1
 imageio-ffmpeg==0.5.1
@@ -79,6 +82,7 @@ newspaper3k==0.2.8
 nltk==3.9.1
 numba==0.60.0
 numpy==2.0.2
+onnxruntime==1.20.1
 openai==1.51.2
 openai-whisper==20240930
 opencv-python==4.10.0.84
@@ -140,6 +144,7 @@ tinysegmenter==0.3
 tldextract==5.1.3
 toml==0.10.2
 torch==2.5.1
+torchaudio==2.5.1
 tornado==6.4.1
 tqdm==4.66.5
 traitlets==5.14.3
@@ -153,3 +158,4 @@ websockets==13.1
 whisper-timestamped==1.15.8
 widgetsnbextension==4.0.13
 yarl==1.14.0
+yt-dlp==2024.11.18
