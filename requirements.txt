@@ -93,7 +93,6 @@ partial-json-parser==0.2.1.1.post4
 pexpect==4.9.0
 pillow==10.4.0
 platformdirs==4.3.6
-playsound==1.2.2
 proglog==0.1.10
 prompt_toolkit==3.0.48
 propcache==0.2.0

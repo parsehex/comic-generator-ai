@@ -25,15 +25,19 @@ I've started taking notebooks and turning them into scripts for easier use (most
 
 # Setup
 
-If using Mac, install deps using `requirements_mac.txt`:
+If using Mac, install dependencies using `requirements_mac.txt`:
 
 ```bash
+python -m venv venv
+source venv/bin/activate # for linux/mac
+# .\venv\Scripts\activate # for windows
 pip install -r requirements_mac.txt
 ```
 
 If using Windows, you'll need to use WSL.
 
 You'll need to install:
+
 - `ffmpeg`
 - `imagemagick`
   - [Install from source (GH Gist)](https://gist.github.com/cuuupid/963db645047597723956af13ab87b73a)
