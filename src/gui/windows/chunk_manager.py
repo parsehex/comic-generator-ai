@@ -4,6 +4,7 @@ import os
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel, QListWidget, QListWidgetItem
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
+import winsound
 from playsound import playsound
 from src.utils import create_audio
 from src.enums import ElevenLabsTTSModel
@@ -105,7 +106,10 @@ class ChunkManager(QWidget):
 		audio_path = os.path.join(self.project_folder, audio_path)
 
 		if os.path.exists(audio_path):
-			playsound(audio_path)
+			if sys.platform == 'win32':
+				winsound.PlaySound(audio_path, winsound.SND_FILENAME)
+			else:
+				playsound(audio_path)
 		else:
 			self.status_label.setText("Audio file not found")
 
